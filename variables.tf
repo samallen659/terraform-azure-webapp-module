@@ -28,7 +28,7 @@ variable "environment" {
 variable "admin_username" {
   description = "Admin username of the virtual machines in the scale set"
   type        = string
-  default     = "admin"
+  default     = "adminvmss"
 }
 
 variable "admin_password" {

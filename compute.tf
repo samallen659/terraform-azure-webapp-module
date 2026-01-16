@@ -3,7 +3,7 @@ resource "azurerm_orchestrated_virtual_machine_scale_set" "vmss-main" {
   location                    = var.location
   resource_group_name         = azurerm_resource_group.rg-main.name
   platform_fault_domain_count = 1
-  sku_name                    = "B1ls"
+  sku_name                    = "Standard_B1ls"
   encryption_at_host_enabled  = true
   instances                   = 1
   os_profile {
@@ -12,13 +12,17 @@ resource "azurerm_orchestrated_virtual_machine_scale_set" "vmss-main" {
       admin_password = var.admin_password
     }
   }
-  upgrade_mode = "Rolling"
-  rolling_upgrade_policy {
-    max_batch_instance_percent              = 50
-    max_unhealthy_instance_percent          = 50
-    max_unhealthy_upgraded_instance_percent = 50
-    pause_time_between_batches              = "PT6H"
+  os_disk {
+    storage_account_type = "Standard_LRS"
+    caching              = "None"
   }
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "ubuntu-24_04-lts"
+    sku       = "server"
+    version   = "latest"
+  }
+  upgrade_mode = "Manual"
   tags = {
     environment = var.environment
   }

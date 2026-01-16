@@ -55,7 +55,6 @@ Build a reusable Terraform module for a scalable three-tier web application on A
 ## File Structure
 
 ```bash
-modules/web-app/
 ├── main.tf # Main resources
 ├── variables.tf # Input variables
 ├── outputs.tf # Outputs

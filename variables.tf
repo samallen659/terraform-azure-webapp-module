@@ -34,6 +34,7 @@ variable "admin_username" {
 variable "admin_password" {
   description = "Admin password of the virtual machines in the scale set"
   type        = string
+  sensitive   = true
   validation {
     condition     = length(var.admin_password) >= 8
     error_message = "Admin password must be at least 8 characters long"

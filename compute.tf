@@ -4,12 +4,12 @@ resource "azurerm_orchestrated_virtual_machine_scale_set" "vmss-main" {
   resource_group_name         = azurerm_resource_group.rg-main.name
   platform_fault_domain_count = 1
   sku_name                    = "Standard_B1ls"
-  encryption_at_host_enabled  = true
   instances                   = 1
   os_profile {
     linux_configuration {
-      admin_username = var.admin_username
-      admin_password = var.admin_password
+      admin_username                  = var.admin_username
+      admin_password                  = var.admin_password
+      disable_password_authentication = false
     }
   }
   os_disk {
@@ -21,6 +21,15 @@ resource "azurerm_orchestrated_virtual_machine_scale_set" "vmss-main" {
     offer     = "ubuntu-24_04-lts"
     sku       = "server"
     version   = "latest"
+  }
+  network_interface {
+    name    = "vmss-nic"
+    primary = true
+    ip_configuration {
+      name      = "internal"
+      primary   = true
+      subnet_id = azurerm_subnet.subnet-web.id
+    }
   }
   upgrade_mode = "Manual"
   tags = {

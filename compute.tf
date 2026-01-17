@@ -5,6 +5,40 @@ resource "azurerm_orchestrated_virtual_machine_scale_set" "vmss-main" {
   platform_fault_domain_count = 1
   sku_name                    = "Standard_B1ls"
   instances                   = 1
+  user_data_base64 = base64encode(<<-EOF
+    #!/bin/bash
+    
+    # Update package list
+    apt-get update
+    
+    # Install nginx
+    apt-get install -y nginx
+    
+    # Create a simple health check endpoint
+    cat > /var/www/html/health <<'HEALTH'
+    OK
+    HEALTH
+    
+    # Create a simple index page
+    cat > /var/www/html/index.html <<'HTML'
+    <!DOCTYPE html>
+    <html>
+    <head><title>Welcome</title></head>
+    <body>
+      <h1>Hello from $(hostname)</h1>
+      <p>Instance ID: $(hostname)</p>
+    </body>
+    </html>
+    HTML
+    
+    # Ensure nginx is running and enabled
+    systemctl enable nginx
+    systemctl start nginx
+    
+    # Allow nginx through firewall (if UFW is enabled)
+    ufw allow 'Nginx HTTP' || true
+    EOF
+  )
   os_profile {
     linux_configuration {
       admin_username                  = var.admin_username
@@ -69,6 +103,7 @@ resource "azurerm_lb_rule" "lbr-http" {
   backend_port                   = "80"
   frontend_ip_configuration_name = "PublicIpAddress"
   probe_id                       = azurerm_lb_probe.lprobe-main.id
+  backend_address_pool_ids       = [azurerm_lb_backend_address_pool.bep-main.id]
 }
 
 resource "azurerm_lb_rule" "lbr-https" {
@@ -79,6 +114,7 @@ resource "azurerm_lb_rule" "lbr-https" {
   backend_port                   = "443"
   frontend_ip_configuration_name = "PublicIpAddress"
   probe_id                       = azurerm_lb_probe.lprobe-main.id
+  backend_address_pool_ids       = [azurerm_lb_backend_address_pool.bep-main.id]
 }
 
 resource "azurerm_lb_probe" "lprobe-main" {

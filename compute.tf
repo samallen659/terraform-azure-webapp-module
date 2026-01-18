@@ -122,3 +122,60 @@ resource "azurerm_lb_probe" "lprobe-main" {
   name            = "http-running-probe"
   port            = 80
 }
+
+resource "azurerm_monitor_autoscale_setting" "autoscale" {
+  name                = "autoscale-vmss-${var.project_name}"
+  resource_group_name = azurerm_resource_group.rg-main.name
+  location            = var.location
+  target_resource_id  = azurerm_orchestrated_virtual_machine_scale_set.vmss-main.id
+  profile {
+    name = "defaultProfile"
+    capacity {
+      default = var.minimum_vmss_instances
+      minimum = var.minimum_vmss_instances
+      maximum = var.maximum_vmss_instances
+    }
+    rule {
+      metric_trigger {
+        metric_name        = "Percentage CPU"
+        metric_resource_id = azurerm_orchestrated_virtual_machine_scale_set.vmss-main.id
+        time_grain         = "PT1M"
+        statistic          = "Average"
+        time_window        = "PT5M"
+        time_aggregation   = "Average"
+        operator           = "GreaterThan"
+        threshold          = 80
+        metric_namespace   = "microsoft.compute/virtualmachinescalesets"
+        dimensions {
+          name     = "AppName"
+          operator = "Equals"
+          values   = ["App1"]
+        }
+      }
+      scale_action {
+        direction = "Increase"
+        type      = "ChangeCount"
+        value     = "1"
+        cooldown  = "PT1M"
+      }
+    }
+    rule {
+      metric_trigger {
+        metric_name        = "Percentage CPU"
+        metric_resource_id = azurerm_orchestrated_virtual_machine_scale_set.vmss-main.id
+        time_grain         = "PT1M"
+        statistic          = "Average"
+        time_window        = "PT5M"
+        time_aggregation   = "Average"
+        operator           = "LessThan"
+        threshold          = 25
+      }
+      scale_action {
+        direction = "Decrease"
+        type      = "ChangeCount"
+        value     = "1"
+        cooldown  = "PT1M"
+      }
+    }
+  }
+}

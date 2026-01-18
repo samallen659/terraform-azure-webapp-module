@@ -40,3 +40,29 @@ variable "admin_password" {
     error_message = "Admin password must be at least 8 characters long"
   }
 }
+
+variable "minimum_vmss_instances" {
+  description = "Minimum number of vmss instances"
+  type        = number
+  default     = 1
+  validation {
+    condition     = var.minimum_vmss_instances > 0 && var.minimum_vmss_instances <= 5
+    error_message = "Must be greater than 0 and less than or equal to 5."
+  }
+}
+
+variable "maximum_vmss_instances" {
+  description = "Maximum number of vmss instances"
+  type        = number
+  default     = 2
+  validation {
+    condition     = var.maximum_vmss_instances > 1 && var.maximum_vmss_instances <= 10
+    error_message = "Must be greater than 1 and less than or equal to 10."
+  }
+}
+
+variable "bastion_required" {
+  description = "Is a bastion host required"
+  type        = bool
+  default     = false
+}

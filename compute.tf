@@ -25,11 +25,14 @@ resource "azurerm_orchestrated_virtual_machine_scale_set" "vmss-main" {
     <html>
     <head><title>Welcome</title></head>
     <body>
-      <h1>Hello from $(hostname)</h1>
-      <p>Instance ID: $(hostname)</p>
+      <h1>Hello from HOSTNAME_PLACEHOLDER</h1>
+      <p>Instance ID: HOSTNAME_PLACEHOLDER</p>
     </body>
     </html>
     HTML
+
+    # Replace placeholder with Hostname
+    sed -i -e "s/HOSTNAME_PLACEHOLDER/$HOSTNAME/g" /var/www/html/index.html
     
     # Ensure nginx is running and enabled
     systemctl enable nginx

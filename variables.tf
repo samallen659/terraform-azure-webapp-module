@@ -66,3 +66,18 @@ variable "bastion_required" {
   type        = bool
   default     = false
 }
+
+variable "postgesql_user" {
+  description = "Admin user account for postgresql flexible server"
+  type        = string
+  default     = "pgadminuser"
+}
+
+variable "postgresql_password" {
+  description = "Password for postgresql flexible server admin user"
+  type        = string
+  validation {
+    condition     = length(var.postgresql_password) >= 8
+    error_message = "Admin password must be at least 8 characters long"
+  }
+}

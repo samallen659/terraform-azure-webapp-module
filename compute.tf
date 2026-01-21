@@ -69,6 +69,10 @@ resource "azurerm_orchestrated_virtual_machine_scale_set" "vmss-main" {
       load_balancer_backend_address_pool_ids = [azurerm_lb_backend_address_pool.bep-main.id]
     }
   }
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.id-vmss-main.id]
+  }
   upgrade_mode = "Manual"
   tags = {
     environment = var.environment

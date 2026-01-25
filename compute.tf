@@ -1,3 +1,9 @@
+data "azurerm_image" "webapp-image" {
+  name                = var.image_name
+  resource_group_name = "rg-packer-images"
+}
+
+
 resource "azurerm_orchestrated_virtual_machine_scale_set" "vmss-main" {
   name                        = "vmss-${var.project_name}"
   location                    = var.location
@@ -5,43 +11,7 @@ resource "azurerm_orchestrated_virtual_machine_scale_set" "vmss-main" {
   platform_fault_domain_count = 1
   sku_name                    = "Standard_B1ls"
   instances                   = 1
-  user_data_base64 = base64encode(<<-EOF
-    #!/bin/bash
-    
-    # Update package list
-    apt-get update
-    
-    # Install nginx
-    apt-get install -y nginx
-    
-    # Create a simple health check endpoint
-    cat > /var/www/html/health <<'HEALTH'
-    OK
-    HEALTH
-    
-    # Create a simple index page
-    cat > /var/www/html/index.html <<'HTML'
-    <!DOCTYPE html>
-    <html>
-    <head><title>Welcome</title></head>
-    <body>
-      <h1>Hello from HOSTNAME_PLACEHOLDER</h1>
-      <p>Instance ID: HOSTNAME_PLACEHOLDER</p>
-    </body>
-    </html>
-    HTML
-
-    # Replace placeholder with Hostname
-    sed -i -e "s/HOSTNAME_PLACEHOLDER/$HOSTNAME/g" /var/www/html/index.html
-    
-    # Ensure nginx is running and enabled
-    systemctl enable nginx
-    systemctl start nginx
-    
-    # Allow nginx through firewall (if UFW is enabled)
-    ufw allow 'Nginx HTTP' || true
-    EOF
-  )
+  source_image_id             = data.azurerm_image.webapp-image.id
   os_profile {
     linux_configuration {
       admin_username                  = var.admin_username
@@ -52,12 +22,6 @@ resource "azurerm_orchestrated_virtual_machine_scale_set" "vmss-main" {
   os_disk {
     storage_account_type = "Standard_LRS"
     caching              = "None"
-  }
-  source_image_reference {
-    publisher = "Canonical"
-    offer     = "ubuntu-24_04-lts"
-    sku       = "server"
-    version   = "latest"
   }
   network_interface {
     name    = "vmss-nic"

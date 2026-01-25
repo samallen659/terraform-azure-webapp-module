@@ -38,6 +38,14 @@ resource "azurerm_orchestrated_virtual_machine_scale_set" "vmss-main" {
     identity_ids = [azurerm_user_assigned_identity.id-vmss-main.id]
   }
   upgrade_mode = "Manual"
+  # Pass configuration via user_data
+  user_data_base64 = base64encode(templatefile("${path.module}/templates/cloud-init.yaml", {
+    db_host            = azurerm_postgresql_flexible_server.psqlfsvr-main.fqdn
+    db_name            = azurerm_postgresql_flexible_server_database.psqlfsvr-main.name
+    db_user            = var.postgesql_user
+    key_vault_name     = azurerm_key_vault.kv-main.name
+    db_password_secret = azurerm_key_vault_secret.kvs-pgpass.name
+  }))
   tags = {
     environment = var.environment
   }

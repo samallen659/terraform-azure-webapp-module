@@ -81,3 +81,8 @@ variable "postgresql_password" {
     error_message = "Admin password must be at least 8 characters long"
   }
 }
+
+variable "image_name" {
+  description = "VM Image for VMSS"
+  type        = string
+}

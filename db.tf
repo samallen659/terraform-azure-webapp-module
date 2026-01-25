@@ -29,3 +29,10 @@ resource "azurerm_postgresql_flexible_server" "psqlfsvr-main" {
   sku_name   = "B_Standard_B1ms"
   depends_on = [azurerm_private_dns_zone_virtual_network_link.pdns-link-main]
 }
+
+resource "azurerm_postgresql_flexible_server_database" "psqldb-main" {
+  name      = var.project_name
+  server_id = azurerm_postgresql_flexible_server.psqlfsvr-main.id
+  collation = "en_US.utf8"
+  charset   = "UTF8"
+}

@@ -1,0 +1,22 @@
+#cloud-config
+
+write_files:
+  - path: /opt/flaskapp/.env
+    owner: flaskapp:flaskapp
+    permissions: "0600"
+    content: |
+      DB_HOST=${db_host}
+      DB_NAME=${db_name}
+      DB_USER=${db_user}
+      KEY_VAULT_NAME=${key_vault_name}
+      DB_PASSWORD_SECRET_NAME=${db_password_secret}
+
+runcmd:
+  # Wait for the identity to be fully propagated
+  - sleep 30
+  # Restart the Flask app service
+  - systemctl daemon-reload
+  - systemctl restart flaskapp
+  - systemctl restart nginx
+  # Check status
+  - systemctl status flaskapp --no-pager

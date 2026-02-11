@@ -93,10 +93,10 @@ Build a reusable Terraform module for a scalable three-tier web application on A
 ### Testing Checklist
 
 - [ ] Module deploys with default variables
-- [ ] Application accessible via load balancer
-- [ ] Autoscaling works under CPU load
-- [ ] Database only accessible from web tier
-- [ ] Credentials stored in Key Vault
+- [x] Application accessible via load balancer
+- [x] Autoscaling works under CPU load
+- [x] Database only accessible from web tier
+- [x] Credentials stored in Key Vault
 - [ ] Clean destruction without errors
 - [ ] Works across dev/staging/prod environments
 

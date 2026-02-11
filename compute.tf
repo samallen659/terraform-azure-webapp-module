@@ -1,9 +1,3 @@
-data "azurerm_image" "webapp-image" {
-  name                = var.image_name
-  resource_group_name = "rg-packer-images"
-}
-
-
 resource "azurerm_orchestrated_virtual_machine_scale_set" "vmss-main" {
   name                        = "vmss-${var.project_name}"
   location                    = var.location
@@ -11,7 +5,7 @@ resource "azurerm_orchestrated_virtual_machine_scale_set" "vmss-main" {
   platform_fault_domain_count = 1
   sku_name                    = "Standard_B1ls"
   instances                   = 1
-  source_image_id             = data.azurerm_image.webapp-image.id
+  source_image_id             = var.image_id
   os_profile {
     linux_configuration {
       admin_username                  = var.admin_username
@@ -39,9 +33,9 @@ resource "azurerm_orchestrated_virtual_machine_scale_set" "vmss-main" {
   }
   upgrade_mode = "Manual"
   # Pass configuration via user_data
-  user_data_base64 = base64encode(templatefile("${path.module}/templates/cloud-init.yaml", {
+  user_data_base64 = base64encode(templatefile("${path.module}/cloud-init.yaml", {
     db_host            = azurerm_postgresql_flexible_server.psqlfsvr-main.fqdn
-    db_name            = azurerm_postgresql_flexible_server_database.psqlfsvr-main.name
+    db_name            = azurerm_postgresql_flexible_server_database.psqldb-main.name
     db_user            = var.postgesql_user
     key_vault_name     = azurerm_key_vault.kv-main.name
     db_password_secret = azurerm_key_vault_secret.kvs-pgpass.name

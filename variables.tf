@@ -82,7 +82,7 @@ variable "postgresql_password" {
   }
 }
 
-variable "image_name" {
+variable "image_id" {
   description = "VM Image for VMSS"
   type        = string
 }
